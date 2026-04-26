@@ -85,69 +85,65 @@ func initialModel(diff string, speed int) model {
 		rollSpeed: time.Duration(speed) * time.Millisecond,
 	}
 
-	// Build the grids and store word locations
-	numWords := len(selectedWords)
-	half := (numWords + 1) / 2
-	if half == 0 && numWords > 0 {
-		half = 1
-	}
-
-	for i, w := range selectedWords {
-		column := 0
-		row := i
-		if half > 0 {
-			column = i / half
-			row = i % half
-		}
-
-		if row >= 15 {
-			continue
-		}
-
-		line, startX := generateScrambledLine(w, 12, r)
-
-		if column == 0 {
-			m.leftGrid[row] = line
-		} else if column == 1 {
-			m.rightGrid[row] = line
-		}
-
-		m.words = append(m.words, wordLocation{
-			text:   w,
-			row:    row,
-			startX: startX,
-			endX:   startX + len(w) - 1,
-			column: column,
-		})
-	}
-
+	// Initialize grids with garbage
 	for i := 0; i < 15; i++ {
-		if m.leftGrid[i] == "" {
-			m.leftGrid[i] = randomGarbage(12, r)
+		m.leftGrid[i] = randomGarbage(12, r)
+		m.rightGrid[i] = randomGarbage(12, r)
+	}
+
+	// Place words randomly
+	for _, w := range selectedWords {
+		placed := false
+		for attempts := 0; attempts < 100; attempts++ {
+			column := r.Intn(2)
+			row := r.Intn(15)
+			startX := r.Intn(12 - len(w) + 1)
+
+			// Check for overlap with existing words (including 1-char buffer)
+			overlap := false
+			for _, existing := range m.words {
+				if existing.column == column && existing.row == row {
+					// Check if [startX, startX+len(w)-1] overlaps with [existing.startX-1, existing.endX+1]
+					if startX <= existing.endX+1 && startX+len(w)-1 >= existing.startX-1 {
+						overlap = true
+						break
+					}
+				}
+			}
+
+			if !overlap {
+				// Place the word
+				var grid []string
+				if column == 0 {
+					grid = m.leftGrid
+				} else {
+					grid = m.rightGrid
+				}
+
+				line := []rune(grid[row])
+				for i, char := range w {
+					line[startX+i] = char
+				}
+				grid[row] = string(line)
+
+				m.words = append(m.words, wordLocation{
+					text:   w,
+					row:    row,
+					startX: startX,
+					endX:   startX + len(w) - 1,
+					column: column,
+				})
+				placed = true
+				break
+			}
 		}
-		if m.rightGrid[i] == "" {
-			m.rightGrid[i] = randomGarbage(12, r)
+		if !placed {
+			// This could happen if the grid is very full, but with our settings it's unlikely.
+			// We just skip the word if it doesn't fit after 100 tries.
 		}
 	}
 
 	return m
-}
-
-func generateScrambledLine(word string, width int, r *rand.Rand) (string, int) {
-	symbols := "!@#$%^&*()[]{}<>/\\|:;,.?"
-	startX := 0
-	if width > len(word) {
-		startX = r.Intn(width - len(word) + 1)
-	}
-	line := ""
-	for i := 0; i < width; i++ {
-		if i >= startX && i < startX+len(word) {
-			line += string(word[i-startX])
-		} else {
-			line += string(symbols[r.Intn(len(symbols))])
-		}
-	}
-	return line, startX
 }
 
 func randomGarbage(width int, r *rand.Rand) string {
@@ -242,16 +238,19 @@ func (m model) checkGuess(guess string) model {
 	for i := 0; i < len(guess) && i < len(m.secret); i++ {
 		if guess[i] == m.secret[i] {
 			likeness++
-			guess_string += string(guess[i])
+			//draw in green
+			guess_string += brightStyle.Render(string(guess[i]))
 		} else {
-			guess_string += "?"
+			//draw in red
+			guess_string += failedStyle.Render("?")
 		}
 	}
 
 	m.attempts--
-	m.output = append(m.output, fmt.Sprintf("> %s -> %s", guess, guess_string))
-	m.output = append(m.output, "> Entry denied.")
-	m.output = append(m.output, fmt.Sprintf("> Likeness=%d. Remaining attempts: %d", likeness, m.attempts))
+	m.output = append(m.output, fmt.Sprintf("> %s", guess))
+	m.output = append(m.output, fmt.Sprintf("  %s", guess_string))
+	m.output = append(m.output, fmt.Sprintf("> Likeness=%d", likeness))
+	m.output = append(m.output, fmt.Sprintf("> Attempts: %d\n", m.attempts))
 
 	if m.attempts <= 0 {
 		m.state = "lockout"

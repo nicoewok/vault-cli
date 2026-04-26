@@ -9,11 +9,13 @@ import (
 )
 
 var (
-	terminalGreen = lipgloss.Color("#00FF41")
-	darkGreen     = lipgloss.Color("#003B00")
+	terminalGreen = lipgloss.Color("#009940ff")
+	darkGreen     = lipgloss.Color("#416345ff")
+	darkRed       = lipgloss.Color("#881104ff")
 
 	brightStyle = lipgloss.NewStyle().Foreground(terminalGreen)
 	dimStyle    = lipgloss.NewStyle().Foreground(darkGreen)
+	failedStyle = lipgloss.NewStyle().Foreground(darkRed)
 	cursorStyle = lipgloss.NewStyle().
 			Background(terminalGreen).
 			Foreground(lipgloss.Color("#000000"))
@@ -35,11 +37,11 @@ func (m model) View() string {
 	var output string
 	switch m.state {
 	case "lockout":
-		output = errorStyle.Render("\n\n  [ TERMINAL LOCKED ]\n\n  PLEASE CONTACT AN ADMINISTRATOR\n\n  Press any key to exit...")
+		output = errorStyle.Render(robcoLogo + "\n\n  [ TERMINAL LOCKED ]\n\n  PLEASE CONTACT AN ADMINISTRATOR\n\n  Press any key to exit...\n")
 	case "success":
-		output = successStyle.Render(robcoLogo + "\n\n  [ ACCESS GRANTED ]\n\n  WELCOME, OVERSEER\n\n  Press any key to exit...")
+		output = successStyle.Render(robcoLogo + "\n\n  [ ACCESS GRANTED ]\n\n  WELCOME, OVERSEER\n\n  Press any key to exit...\n")
 	case "opening":
-		output = brightStyle.Render(robcoLogo + "\n\n  ROBCO INDUSTRIES (TM) TERMLINK \n\n  > Press [ENTER] to begin...")
+		output = brightStyle.Render(robcoLogo + "\n\n  ROBCO INDUSTRIES (TM) TERMLINK \n\n  > Press [ENTER] to begin...\n")
 	default:
 		output = m.renderHackingView()
 	}

@@ -11,7 +11,7 @@ import (
 
 func main() {
 	diff := flag.String("d", "easy", "difficulty level (easy, medium, hard)")
-	speed := flag.Int("s", 5, "rolling speed in milliseconds")
+	speed := flag.Int("s", 3, "rolling speed in milliseconds")
 	flag.Parse()
 
 	p := tea.NewProgram(initialModel(*diff, *speed))
