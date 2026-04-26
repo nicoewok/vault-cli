@@ -1,14 +1,43 @@
 # Vault CLI
-> CLI hacking mini-game from the Fallout franchise
+A visually-pleasing terminal recreation of the iconic "Hacking" minigame from the Fallout franchise. Built with Go and the Charm.sh ecosystem.
 
-# Install
+---
 
+## Installation
+
+Find the latest binaries for your architecture on the [Releases](https://github.com/nicoewok/vault-cli/releases) page.
+
+### Linux (Debian/Ubuntu)
+Download the `.deb` file and install via dpkg:
 ```bash
-# Replace x.x.x with the version number
-sudo apt install ./vault-cli_x.x.x_amd64.deb
+sudo apt install ./vault-cli_1.0.0_linux_amd64.deb
 ```
 
-## Usage
+### Windows
+1. Download the latest `windows_amd64.zip`.
+
+2. Extract the .zip file.
+
+3. Run `vault-cli.exe` from your terminal (PowerShell or CMD).
+
+Optionally add it to `PATH` using:
+```powershell
+[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + "[file_location]", "User")
+```
+where `[file_location]` is the location of the folder where your `vault-cli.exe` resides.
+
+### MacOS
+Download the latest `darwin_all.tar.gz` (or `arm64` for M1/M2/M3 chips).
+1. Extract the binary:
+```bash
+tar -xf vault-cli_1.0.0_darwin_all.tar.gz
+```
+Move to your path:
+```bash
+mv vault-cli /usr/local/bin/
+```
+
+# Usage
 ```bash
 vault-cli -d <difficulty>
 ```
