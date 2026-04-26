@@ -1,25 +1,22 @@
+// main.go
 package main
 
 import (
-	"embed"
 	"flag"
-	"strings"
-	"vault-cli/game" // Import your local package
+	"fmt"
+	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-//go:embed data/*.txt
-var dataFiles embed.FS
-
 func main() {
-	diff := flag.String("d", "easy", "difficulty level")
+	diff := flag.String("d", "easy", "difficulty level (easy, medium, hard)")
+	speed := flag.Int("s", 5, "rolling speed in milliseconds")
 	flag.Parse()
 
-	// Read the specific file based on flag
-	content, _ := dataFiles.ReadFile("data/" + *diff + ".txt")
-	words := strings.Split(string(content), "\n")
-
-	p := tea.NewProgram(game.InitialModel(words))
-	p.Run()
+	p := tea.NewProgram(initialModel(*diff, *speed))
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("Error: %v", err)
+		os.Exit(1)
+	}
 }

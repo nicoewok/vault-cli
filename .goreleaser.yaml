@@ -1,0 +1,39 @@
+version: 2
+project_name: vault-cli
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env: [CGO_ENABLED=0]
+    # Adding darwin (macOS) and windows for maximum reach
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    # Points to the root directory to compile all files in package main
+    main: .
+    binary: vault-cli
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip] # Windows users usually prefer .zip over .tar.gz
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
