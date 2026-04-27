@@ -79,14 +79,30 @@ func (m model) applyRoll(s string) string {
 }
 
 func (m model) renderHackingView() string {
+	attemptsStr := fmt.Sprintf("%d ATTEMPT(S) LEFT: ", m.attempts)
+	for i := 0; i < m.attempts; i++ {
+		attemptsStr += "■ "
+	}
+	for i := 0; i < m.maxAttempts-m.attempts; i++ {
+		attemptsStr += "□ "
+	}
+	header := brightStyle.Render(attemptsStr) + "\n\n"
+
 	startAddr := 0xF82C
 	leftView := m.renderGrid(m.leftGrid, 0, startAddr)
 	rightView := m.renderGrid(m.rightGrid, 1, startAddr+256)
 
 	gameGrid := lipgloss.JoinHorizontal(lipgloss.Top, leftView, "    ", rightView)
-	history := lipgloss.NewStyle().MarginLeft(4).Render(strings.Join(m.output, "\n"))
 
-	return lipgloss.JoinHorizontal(lipgloss.Top, gameGrid, history)
+	// Show only the last 15 lines of history to match the grid height
+	start := 0
+	if len(m.output) > 15 {
+		start = len(m.output) - 15
+	}
+	history := lipgloss.NewStyle().MarginLeft(4).Render(strings.Join(m.output[start:], "\n"))
+
+	mainView := lipgloss.JoinHorizontal(lipgloss.Top, gameGrid, history)
+	return header + mainView
 }
 
 func (m model) renderGrid(grid []string, colIdx int, startAddr int) string {

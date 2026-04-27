@@ -32,6 +32,7 @@ type model struct {
 	activeCol int
 	secret    string
 	attempts  int
+	maxAttempts int
 	output    []string
 	rollIndex int
 	rollSpeed time.Duration
@@ -56,9 +57,15 @@ func initialModel(diff string, speed int) model {
 		allWords[i], allWords[j] = allWords[j], allWords[i]
 	})
 
+	// Change these values to higher targets
 	desiredCount := 10
-	if diff == "hard" {
-		desiredCount = 16
+	attemptsCount := 4
+	if diff == "medium" {
+		desiredCount = 18
+		attemptsCount = 6
+	} else if diff == "hard" {
+		desiredCount = 20
+		attemptsCount = 8
 	}
 
 	actualCount := len(allWords)
@@ -72,10 +79,13 @@ func initialModel(diff string, speed int) model {
 		secretWord = selectedWords[r.Intn(actualCount)]
 	}
 
+
+
 	m := model{
 		state:     "opening",
 		secret:    secretWord,
-		attempts:  4,
+		attempts:  attemptsCount,
+		maxAttempts: attemptsCount,
 		activeCol: 0,
 		cursorX:   0,
 		cursorY:   0,
@@ -249,8 +259,6 @@ func (m model) checkGuess(guess string) model {
 	m.attempts--
 	m.output = append(m.output, fmt.Sprintf("> %s", guess))
 	m.output = append(m.output, fmt.Sprintf("  %s", guess_string))
-	m.output = append(m.output, fmt.Sprintf("> Likeness=%d", likeness))
-	m.output = append(m.output, fmt.Sprintf("> Attempts: %d\n", m.attempts))
 
 	if m.attempts <= 0 {
 		m.state = "lockout"
