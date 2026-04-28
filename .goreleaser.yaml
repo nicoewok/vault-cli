@@ -1,39 +1,42 @@
 version: 2
-project_name: vault-cli
+project_name: vauilt-cli
 
 before:
   hooks:
     - go mod tidy
+    # Removed generate_completions.sh hooks since those files aren't in your new tree
 
 builds:
   - env: [CGO_ENABLED=0]
-    # Adding darwin (macOS) and windows for maximum reach
-    goos:
-      - linux
-      - darwin
-      - windows
-    goarch:
-      - amd64
-      - arm64
-    # Points to the root directory to compile all files in package main
+    goos: [linux]
+    goarch: [amd64, arm64]
+    binary: vauilt-cli
     main: .
-    binary: vault-cli
 
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    format_overrides:
-      - goos: windows
-        formats: [zip] # Windows users usually prefer .zip over .tar.gz
+    formats: [tar.gz]
+    # If your data files ARE NOT embedded in the Go binary, uncomment the files block below
+    # to include them in the .tar.gz archives:
+    # files:
+    #   - src: data/*
+    #     dst: data
 
-checksum:
-  name_template: 'checksums.txt'
+nfpms:
+  - file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}"
+    id: vauilt-cli
+    package_name: vauilt-cli
+    maintainer: "Nico Lang <nicolang0416@gmail.com>"
+    description: "vauilt-cli application" # Update this to fit your app's actual purpose
+    homepage: "https://github.com/nicoewok/vauilt-cli"
+    license: MIT
+    formats: [deb]
+    
+    # If your data files ARE NOT embedded in the Go binary, uncomment the contents block 
+    # to ship them inside the .deb package:
+    # contents:
+    #   - src: ./data/
+    #     dst: /usr/share/vauilt-cli/data/
 
 snapshot:
-  version_template: "{{ incpatch .Version }}-next"
-
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+  version_template: "1.0.0-snapshot"

@@ -10,31 +10,7 @@ Find the latest binaries for your architecture on the [Releases](https://github.
 ### Linux (Debian/Ubuntu)
 Download the `.deb` file and install via dpkg:
 ```bash
-sudo apt install ./vault-cli_1.0.0_linux_amd64.deb
-```
-
-### Windows
-1. Download the latest `windows_amd64.zip`.
-
-2. Extract the .zip file.
-
-3. Run `vault-cli.exe` from your terminal (PowerShell or CMD).
-
-Optionally add it to `PATH` using:
-```powershell
-[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + "[file_location]", "User")
-```
-where `[file_location]` is the location of the folder where your `vault-cli.exe` resides.
-
-### MacOS
-Download the latest `darwin_all.tar.gz` (or `arm64` for M1/M2/M3 chips).
-1. Extract the binary:
-```bash
-tar -xf vault-cli_1.0.0_darwin_all.tar.gz
-```
-Move to your path:
-```bash
-mv vault-cli /usr/local/bin/
+sudo apt install ./vault-cli_1.x.x_linux_amd64.deb
 ```
 
 # Usage
